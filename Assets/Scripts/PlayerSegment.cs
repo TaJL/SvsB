@@ -15,6 +15,6 @@ public class PlayerSegment : MonoBehaviour
             transform.Translate(future_positions[0]);
             future_positions.RemoveAt(0);
         }
-        future_positions.Add(following_to.transform.position);
+        future_positions.Add(following_to.transform.position - transform.position);
     }
 }

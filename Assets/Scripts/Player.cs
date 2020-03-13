@@ -5,12 +5,16 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public float ver_speed;
     public float seconds_of_invulnerability;
-
-    private Vector2 traslation;
-    private float invulnerability_timer = 0;
-    private int hp;
+    public float horizontalLimits;
+    public float horSpeed;
+    public float VerSpeed
+    {
+        set
+        {
+            verSpeed = value;
+        }
+    }
     public int Hp
     {
         get
@@ -20,9 +24,21 @@ public class Player : MonoBehaviour
         set
         {
             hp = value;
+            if (hp < 0)
+            {
+                hp = 0;
+            }
             SetText();
         }
     }
+
+    private float verSpeed;
+    private Vector2 traslation;
+    private float minX;
+    private float maxX;
+    private float invulnerability_timer = 0;
+    private int hp;
+
     private const string EVENT_PICK_UP_TAKEN = "pick up taken";
     private const string EVENT_DAMAGE_TAKEN = "damage";
     private const string EVENT_GAME_OVER = "game over";
@@ -31,10 +47,14 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        EventManager.StartListening(EVENT_PICK_UP_TAKEN , AddSegment);
-        EventManager.StartListening(EVENT_DAMAGE_TAKEN , RemoveSegment);
+        EventManager.StartListening(EVENT_PICK_UP_TAKEN, AddSegment);
+        EventManager.StartListening(EVENT_DAMAGE_TAKEN, RemoveSegment);
         EventManager.StartListening(EVENT_STOP, StopVerticalMove);
         EventManager.StartListening(EVENT_GO_FORWARD, StartVerticalMove);
+
+        minX = horizontalLimits;
+        maxX = 10 - horizontalLimits;
+        //maxX = Camera.main.orthographicSize * Screen.width / Screen.height - horizontalLimits;
     }
 
     void Update()
@@ -47,8 +67,11 @@ public class Player : MonoBehaviour
         if (traslation.y != 0)
         {
             GetHorizontalMove();
-            Debug.Log(traslation);
             transform.Translate(traslation * Time.deltaTime);
+            if (transform.position.x < minX || transform.position.x > maxX)
+            {
+                transform.position = new Vector2(Mathf.Clamp(transform.position.x,minX,maxX) ,transform.position.y);
+            }
         }
 
         if (invulnerability_timer > 0)
@@ -59,17 +82,25 @@ public class Player : MonoBehaviour
     
     void GetHorizontalMove()
     {
-        if (Input.touchCount > 0)
+        if (Application.platform == RuntimePlatform.Android)
         {
-            Touch touch = Input.GetTouch(0);
-            Vector2 touch_position = Camera.main.ScreenToWorldPoint(touch.position);
-            traslation.x = touch_position.x - transform.position.x;
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
+                Vector2 touch_position = Camera.main.ScreenToWorldPoint(touch.position);
+                traslation.x = horSpeed * (touch_position.x - transform.position.x);
+            }
+        }
+        else
+        {
+            Vector2 mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            traslation.x = mouse_position.x - transform.position.x;
         }
     }
 
     void StartVerticalMove()
     {
-        traslation.y = ver_speed;
+        traslation.y = verSpeed;
     }
 
     void StopVerticalMove()
@@ -95,11 +126,6 @@ public class Player : MonoBehaviour
         }
 
         Hp--;
-
-        if (Hp <= 0)
-        {
-            EventManager.TriggerEvent(EVENT_GAME_OVER);
-        }
     }
 
     void SetText()
