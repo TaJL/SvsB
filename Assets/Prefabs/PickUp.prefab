@@ -36,7 +36,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 6, y: 6}
+  m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &1325544728958321264
 SpriteRenderer:
@@ -100,11 +100,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fdbe182846340742a68b4dd8c742c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnPicked:
-    m_PersistentCalls:
-      m_Calls: []
-  points_to_give: 1
   range: 0
+  give_points_speed: 0
+  points_to_give: 1
 --- !u!1 &4504262508274808127
 GameObject:
   m_ObjectHideFlags: 0

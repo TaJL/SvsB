@@ -12,7 +12,7 @@ public class PickUp : MonoBehaviour
     private GameObject player;
     private bool taken;
 
-    private const string EVENT_TAKEN = "Pick Up Taken";
+    private const string EVENT_TAKEN = "pick up taken";
 
     private void Start()
     {

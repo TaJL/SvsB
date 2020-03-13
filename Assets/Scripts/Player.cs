@@ -7,12 +7,11 @@ public class Player : MonoBehaviour
 {
     public float ver_speed;
     public float seconds_of_invulnerability;
-    public int hp_initial;
 
     private Vector2 traslation;
     private float invulnerability_timer = 0;
     private int hp;
-    private int Hp
+    public int Hp
     {
         get
         {
@@ -20,22 +19,22 @@ public class Player : MonoBehaviour
         }
         set
         {
-            hp = Hp;
+            hp = value;
             SetText();
         }
     }
-
-    private const string EVENT_PICK_UP_TAKEN = "Pick Up Taken";
-    private const string EVENT_DAMAGE_TAKEN = "Damage Taken";
-    private const string EVENT_GAME_OVER = "GameOver";
+    private const string EVENT_PICK_UP_TAKEN = "pick up taken";
+    private const string EVENT_DAMAGE_TAKEN = "damage";
+    private const string EVENT_GAME_OVER = "game over";
+    private const string EVENT_STOP = "player stop";
+    private const string EVENT_GO_FORWARD = "player go forward";
 
     private void Start()
     {
         EventManager.StartListening(EVENT_PICK_UP_TAKEN , AddSegment);
         EventManager.StartListening(EVENT_DAMAGE_TAKEN , RemoveSegment);
-        EventManager.StartListening(EVENT_GAME_OVER , GameOver);
-
-        Hp = hp_initial;
+        EventManager.StartListening(EVENT_STOP, StopVerticalMove);
+        EventManager.StartListening(EVENT_GO_FORWARD, StartVerticalMove);
     }
 
     void Update()
@@ -45,10 +44,10 @@ public class Player : MonoBehaviour
             return;
         }
 
-        GetHorizontalMove();
-
-        if (traslation != Vector2.zero)
+        if (traslation.y != 0)
         {
+            GetHorizontalMove();
+            Debug.Log(traslation);
             transform.Translate(traslation * Time.deltaTime);
         }
 
@@ -68,14 +67,29 @@ public class Player : MonoBehaviour
         }
     }
 
+    void StartVerticalMove()
+    {
+        traslation.y = ver_speed;
+    }
+
+    void StopVerticalMove()
+    {
+        traslation.y = 0;
+    }
+
     void AddSegment()
     {
+        if (Hp <= 0)
+        {
+            return;
+        }
+
         Hp ++;
     }
 
     void RemoveSegment()
     {
-        if (invulnerability_timer > 0)
+        if (invulnerability_timer > 0 || Hp <= 0)
         {
             return;
         }
@@ -84,13 +98,8 @@ public class Player : MonoBehaviour
 
         if (Hp <= 0)
         {
-            EventManager.TriggerEvent("GameOver");
+            EventManager.TriggerEvent(EVENT_GAME_OVER);
         }
-    }
-
-    void GameOver()
-    {
-        Hp = hp_initial;
     }
 
     void SetText()

@@ -20,7 +20,7 @@ public class EventManager : MonoBehaviour
                 }
                 else
                 {
-                    eventManager.InitEventDictionary();
+                    eventManager.Init();
                 }
             }
 
@@ -28,7 +28,7 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    private void InitEventDictionary()
+    private void Init()
     {
         if (events == null)
             events = new Dictionary<string, UnityEvent>();
@@ -36,27 +36,42 @@ public class EventManager : MonoBehaviour
 
     public static void StartListening(string eventName, UnityAction listener)
     {
-        UnityEvent e = null;
+        UnityEvent _event = null;
 
-        if (instance.events.TryGetValue(eventName, out e))
+        if (instance.events.TryGetValue(eventName, out _event))
         {
-            e.AddListener(listener);
+            _event.AddListener(listener);
         }
         else
         {
-            e = new UnityEvent();
-            e.AddListener(listener);
-            instance.events.Add(eventName, e);
+            _event = new UnityEvent();
+            _event.AddListener(listener);
+            instance.events.Add(eventName, _event);
+        }
+    }
+
+    public static void StopListening(string eventName, UnityAction listener)
+    {
+        UnityEvent _event = null;
+
+        if (eventManager == null)
+        {
+            return;
+        }
+
+        if (instance.events.TryGetValue(eventName, out _event))
+        {
+            _event.RemoveListener(listener);
         }
     }
 
     public static void TriggerEvent(string eventName)
     {
-        UnityEvent e = null;
+        UnityEvent _event = null;
 
-        if (instance.events.TryGetValue(eventName, out e))
+        if (instance.events.TryGetValue(eventName, out _event))
         {
-            e.Invoke();
+            _event.Invoke();
         }
     }
 
@@ -67,9 +82,9 @@ public class EventManager : MonoBehaviour
             return;
         }
 
-        foreach (var e in instance.events.Values)
+        foreach (var _event in instance.events.Values)
         {
-            e.RemoveAllListeners();
+            _event.RemoveAllListeners();
         }
     }
 
